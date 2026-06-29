@@ -1,0 +1,21 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ] # Triggers every time you push to the main branch
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+    # 1. Pull the code from GitHub
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Test if the Docker image builds correctly (CI - Continuous Integration)
+    - name: Build Docker Image
+      run: docker build -t test-todo-app .
+
+    # 3. Tell your hosting provider to deploy it (CD - Continuous Delivery)
+    - name: Deploy to Production
+      run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
