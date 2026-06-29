@@ -2,20 +2,25 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ] # Triggers every time you push to the main branch
+    branches: [ main ] # Triggers the workflow every time you push to main
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
     steps:
-    # 1. Pull the code from GitHub
+    # 1. Download the code from the repository onto GitHub's runner machine
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    # 2. Test if the Docker image builds correctly (CI - Continuous Integration)
+    # 2. Test if the Docker image builds successfully (Continuous Integration)
     - name: Build Docker Image
       run: docker build -t test-todo-app .
 
-    # 3. Tell your hosting provider to deploy it (CD - Continuous Delivery)
+    # 3. Trigger the deployment to the cloud provider (Continuous Delivery)
     - name: Deploy to Production
-      run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run: |
+        if [ "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" != "" ]; then
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        else
+          echo "Deploy hook secret not set yet. Skipping deployment step."
+        fi
